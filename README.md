@@ -196,6 +196,55 @@ ssh -L 1234:127.0.0.1:1234 user@10.0.1.1 -N
 
 ---
 
+## Автономный запуск в Docker (без LM Studio)
+
+Если вы хотите развернуть модель на выделенном Linux-сервере или рабочей станции с GPU в виде изолированного микросервиса (совместимого с OpenAI API `/v1/embeddings`), в репозитории подготовлена готовая Docker-сборка в директории `docker/`.
+
+### 1. Запуск через Docker Compose (с поддержкой NVIDIA GPU)
+
+```bash
+cd docker
+docker compose up -d --build
+```
+
+### 2. Запуск одной командой `docker run`
+
+```bash
+# С ускорением на NVIDIA GPU:
+docker run -d --name user2-1c-embedder \
+  --gpus all \
+  -p 8000:8000 \
+  -v hf_cache:/root/.cache/huggingface \
+  --restart unless-stopped \
+  user2-1c-embedder:latest
+
+# Без GPU (на процессоре):
+docker run -d --name user2-1c-embedder \
+  -p 8000:8000 \
+  -v hf_cache:/root/.cache/huggingface \
+  --restart unless-stopped \
+  user2-1c-embedder:latest
+```
+
+### 3. Проверка работы контейнера
+
+```bash
+# Проверка здоровья
+curl http://localhost:8000/health
+
+# Тестовый расчет эмбеддинга (размерность 256d по умолчанию)
+curl -X POST http://localhost:8000/v1/embeddings \
+  -H "Content-Type: application/json" \
+  -d '{"input": "Функция РассчитатьСумму() Экспорт"}'
+```
+
+Для подключения MCP-сервера к данному контейнеру достаточно запустить мост с флагом `--url`:
+```bash
+python server.py --url http://localhost:8000
+```
+
+---
+
 <details>
 <summary><b>English Version (Click to expand)</b></summary>
 

@@ -1,0 +1,29 @@
+services:
+  user2-embedder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: user2-1c-embedder:latest
+    container_name: user2-1c-embedder
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_NAME=PruhaNLP/USER2-1C-code
+      - PORT=8000
+      - DEFAULT_DIM=256
+      - BATCH_SIZE=64
+      - MAX_SEQ_LENGTH=4096
+    volumes:
+      # Cache downloaded Hugging Face model weights on host
+      - hf_cache:/root/.cache/huggingface
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  hf_cache:
