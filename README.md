@@ -1,35 +1,35 @@
 # LM Studio Embedding MCP Server
 
-Universal [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for generating text and code embeddings via [LM Studio](https://lmstudio.ai/).
+Универсальный сервер [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) для генерации векторных эмбеддингов текста и исходного кода через локальный [LM Studio](https://lmstudio.ai/).
 
-Works with any embedding model loaded in LM Studio (`USER2-1C-code`, `nomic-embed-text`, `bge-m3`, `multilingual-e5`, etc.) across all major AI coding environments and agents.
-
----
-
-## Features
-
-- **`lmstudio_embed`**: Generates high-dimensional vector embeddings for code snippets, docstrings, or natural language queries.
-- **`lmstudio_list_models`**: Lists all models currently available or loaded in LM Studio.
-- **Zero external dependencies**: Built purely using the Python standard library (`sys`, `json`, `urllib`).
-- **Cross-platform**: Works on Windows, macOS, and Linux. Supports both local instances (`127.0.0.1:1234`) and remote instances over SSH tunnels / LAN.
+Работает с любыми моделями эмбеддингов, загруженными в LM Studio (`USER2-1C-code`, `nomic-embed-text`, `bge-m3`, `multilingual-e5` и др.), во всех современных средах разработки и ИИ-агентах.
 
 ---
 
-## Prerequisites
+## Возможности
 
-1. **Python 3.10+** installed.
-2. **LM Studio** running with an embedding model loaded:
-   - In LM Studio, load your model (e.g. `USER2-1C-code` or `nomic-embed-text-v1.5`).
-   - Go to the **Developer / Local Server** tab (`<->`) and start the server on port `1234`.
-   - *Note for ModernBERT models:* In **My Models**, under **Domain Control**, ensure the domain is set to **Text Embedding**.
+- **`lmstudio_embed`** — расчет векторных представлений (эмбеддингов) для кода, поисковых запросов и произвольного текста.
+- **`lmstudio_list_models`** — просмотр списка загруженных и доступных моделей в LM Studio.
+- **Чистый Python (Zero dependencies)** — работает только на стандартной библиотеке Python (`sys`, `json`, `urllib`), установка сторонних `pip`-пакетов не требуется.
+- **Кроссплатформенность** — Windows, macOS, Linux. Поддерживает как локальный запуск (`127.0.0.1:1234`), так и удаленный инстанс через SSH-туннель или локальную сеть.
 
 ---
 
-## Configuration for Popular Environments
+## Предварительные требования
+
+1. **Python 3.10+**
+2. **LM Studio** с запущенным локальным сервером:
+   * Загрузите модель эмбеддингов (например, `USER2-1C-code` или `nomic-embed-text-v1.5`).
+   * Перейдите во вкладку **Developer / Local Server** (`<->`) и запустите сервер на порту `1234`.
+   * *Примечание для моделей ModernBERT:* Во вкладке **My Models** выберите модель и в секции **Domain Control** убедитесь, что выбран тип **Text Embedding**.
+
+---
+
+## Настройка в популярных средах разработки
 
 ### 1. Google Antigravity / Gemini Code Assist
 
-Add the server to your Antigravity configuration file (`~/.gemini/config/mcp_config.json`):
+Добавьте конфигурацию в файл `~/.gemini/config/mcp_config.json`:
 
 ```json
 {
@@ -52,7 +52,7 @@ Add the server to your Antigravity configuration file (`~/.gemini/config/mcp_con
 
 ### 2. OpenCode Interpreter / OpenCode CLI
 
-Add the server to `opencode.json` (or `~/.config/opencode/config.json`):
+Добавьте в `opencode.json` (или `~/.config/opencode/config.json`):
 
 ```json
 {
@@ -62,7 +62,7 @@ Add the server to `opencode.json` (or `~/.config/opencode/config.json`):
         "type": "stdio",
         "command": "python",
         "args": [
-          "/path/to/lmstudio-embedding-mcp/server.py",
+          "C:/path/to/lmstudio-embedding-mcp/server.py",
           "--url",
           "http://127.0.0.1:1234"
         ]
@@ -76,7 +76,7 @@ Add the server to `opencode.json` (or `~/.config/opencode/config.json`):
 
 ### 3. Claude Desktop
 
-Add to `claude_desktop_config.json`:
+Добавьте в `claude_desktop_config.json`:
 - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 - **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
 
@@ -86,7 +86,7 @@ Add to `claude_desktop_config.json`:
     "lmstudio-embedding": {
       "command": "python",
       "args": [
-        "/path/to/lmstudio-embedding-mcp/server.py",
+        "C:/path/to/lmstudio-embedding-mcp/server.py",
         "--url",
         "http://127.0.0.1:1234",
         "--model",
@@ -101,15 +101,14 @@ Add to `claude_desktop_config.json`:
 
 ### 4. Cursor IDE
 
-In Cursor:
-1. Open **Settings** -> **Features** -> **MCP**.
-2. Click **+ Add New MCP Server**.
-3. Set:
+1. Откройте **Settings** -> **Features** -> **MCP**.
+2. Нажмите **+ Add New MCP Server**.
+3. Укажите:
    - **Name:** `lmstudio-embedding`
    - **Type:** `command`
    - **Command:** `python C:/path/to/lmstudio-embedding-mcp/server.py --url http://127.0.0.1:1234`
 
-Or edit `.cursor/mcp.json`:
+Или отредактируйте `.cursor/mcp.json`:
 
 ```json
 {
@@ -130,7 +129,7 @@ Or edit `.cursor/mcp.json`:
 
 ### 5. Windsurf / Codeium
 
-Add to `~/.codeium/windsurf/mcp_config.json`:
+Добавьте в `~/.codeium/windsurf/mcp_config.json`:
 
 ```json
 {
@@ -151,7 +150,7 @@ Add to `~/.codeium/windsurf/mcp_config.json`:
 
 ### 6. Continue.dev (VS Code / JetBrains)
 
-In `~/.continue/config.json`:
+В файле `~/.continue/config.json`:
 
 ```json
 {
@@ -175,28 +174,56 @@ In `~/.continue/config.json`:
 
 ---
 
-## Command Line Options
+## Параметры командной строки
 
-| Flag | Default | Description |
+| Параметр | По умолчанию | Описание |
 |---|---|---|
-| `--url` | `http://127.0.0.1:1234` | Base URL of the LM Studio REST API server |
-| `--model` | `user2-1c-code` | Default model ID used when `model` argument is omitted in tool call |
+| `--url` | `http://127.0.0.1:1234` | Базовый URL сервера LM Studio |
+| `--model` | `user2-1c-code` | Идентификатор модели по умолчанию (если не передан в аргументах вызова) |
 
 ---
 
-## Remote Usage (SSH Tunnel)
+## Работа с удаленным сервером (SSH-туннель)
 
-If LM Studio is running on another machine (e.g. `10.0.1.1`):
+Если LM Studio запущен на отдельном сервере или рабочей станции (например, `10.0.1.1`):
 
 ```bash
-# Forward remote port 1234 to local port 1234
+# Проброс удаленного порта 1234 на локальный порт 1234
 ssh -L 1234:127.0.0.1:1234 user@10.0.1.1 -N
 ```
 
-Then configure the MCP server pointing to `http://127.0.0.1:1234`.
+После этого в конфигурации любого MCP-клиента адрес остается локальным: `http://127.0.0.1:1234`.
 
 ---
 
-## License
+<details>
+<summary><b>English Version (Click to expand)</b></summary>
 
-MIT License. Free for personal and commercial use.
+### Overview
+Universal Model Context Protocol (MCP) server for generating text and code embeddings via LM Studio.
+
+### Prerequisites
+- Python 3.10+
+- LM Studio running local server at port `1234`.
+
+### Usage
+Run directly:
+```bash
+python server.py --url http://127.0.0.1:1234 --model user2-1c-code
+```
+
+### CLI Flags
+- `--url`: Base URL of the LM Studio REST API (default: `http://127.0.0.1:1234`).
+- `--model`: Default embedding model ID (default: `user2-1c-code`).
+
+### Tools Provided
+- `lmstudio_embed`: Calculate embedding vectors for given text or code snippets.
+- `lmstudio_list_models`: List available and loaded models.
+
+</details>
+
+---
+
+## Лицензия
+
+MIT License. Свободно для частного и коммерческого использования.
