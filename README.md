@@ -196,49 +196,61 @@ ssh -L 1234:127.0.0.1:1234 user@10.0.1.1 -N
 
 ---
 
-## Автономный запуск в Docker (без LM Studio)
+## Автономный запуск в Docker (нативный llama.cpp / llama-server)
 
-Если вы хотите развернуть модель на выделенном Linux-сервере или рабочей станции с GPU в виде изолированного микросервиса (совместимого с OpenAI API `/v1/embeddings`), в репозитории подготовлена готовая Docker-сборка в директории `docker/`.
+Для продакшен-окружений, выделенных Linux-серверов или Kubernetes в директории `docker/` подготовлен манифест запуска нативного **C++ сервера `llama-server`** (образ `ghcr.io/ggml-org/llama.cpp:server-cuda`).
 
-### 1. Запуск через Docker Compose (с поддержкой NVIDIA GPU)
+Это решение обеспечивает максимальную скорость (60+ фрагм./с), нулевой оверхед Python runtime, поддержку NVIDIA CUDA и потребление всего ~800 МБ VRAM.
+
+### 1. Подготовка модели
+
+Скачайте GGUF-файл модели в папку `docker/models/`:
+```bash
+mkdir -p docker/models
+curl -L -o docker/models/USER2-1C-code-f16.gguf https://huggingface.co/Unimikes/USER2-1C-code-GGUF/resolve/main/USER2-1C-code-f16.gguf
+```
+
+### 2. Запуск через Docker Compose
 
 ```bash
 cd docker
-docker compose up -d --build
+docker compose up -d
 ```
 
-### 2. Запуск одной командой `docker run`
+### 3. Запуск одной командой `docker run`
 
 ```bash
-# С ускорением на NVIDIA GPU:
+# С ускорением на NVIDIA GPU (CUDA):
 docker run -d --name user2-1c-embedder \
   --gpus all \
   -p 8000:8000 \
-  -v hf_cache:/root/.cache/huggingface \
+  -v $(pwd)/docker/models/USER2-1C-code-f16.gguf:/models/model.gguf:ro \
   --restart unless-stopped \
-  user2-1c-embedder:latest
+  ghcr.io/ggml-org/llama.cpp:server-cuda \
+  -m /models/model.gguf --embedding --pooling cls -c 8192 --host 0.0.0.0 --port 8000
 
-# Без GPU (на процессоре):
+# На CPU (без видеокарты):
 docker run -d --name user2-1c-embedder \
   -p 8000:8000 \
-  -v hf_cache:/root/.cache/huggingface \
+  -v $(pwd)/docker/models/USER2-1C-code-f16.gguf:/models/model.gguf:ro \
   --restart unless-stopped \
-  user2-1c-embedder:latest
+  ghcr.io/ggml-org/llama.cpp:server \
+  -m /models/model.gguf --embedding --pooling cls -c 8192 --host 0.0.0.0 --port 8000
 ```
 
-### 3. Проверка работы контейнера
+### 4. Проверка работы контейнера
 
 ```bash
-# Проверка здоровья
-curl http://localhost:8000/health
+# Проверка доступности моделей
+curl http://localhost:8000/v1/models
 
-# Тестовый расчет эмбеддинга (размерность 256d по умолчанию)
+# Расчет вектора эмбеддинга
 curl -X POST http://localhost:8000/v1/embeddings \
   -H "Content-Type: application/json" \
   -d '{"input": "Функция РассчитатьСумму() Экспорт"}'
 ```
 
-Для подключения MCP-сервера к данному контейнеру достаточно запустить мост с флагом `--url`:
+Для подключения MCP-сервера к данному контейнеру:
 ```bash
 python server.py --url http://localhost:8000
 ```

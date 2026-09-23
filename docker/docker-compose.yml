@@ -1,22 +1,20 @@
 services:
-  user2-embedder:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: user2-1c-embedder:latest
+  user2-1c-embedder:
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
     container_name: user2-1c-embedder
     restart: unless-stopped
     ports:
       - "8000:8000"
-    environment:
-      - MODEL_NAME=PruhaNLP/USER2-1C-code
-      - PORT=8000
-      - DEFAULT_DIM=256
-      - BATCH_SIZE=64
-      - MAX_SEQ_LENGTH=4096
     volumes:
-      # Cache downloaded Hugging Face model weights on host
-      - hf_cache:/root/.cache/huggingface
+      # Путь к локальному GGUF-файлу модели на хосте
+      - ./models/USER2-1C-code-f16.gguf:/models/model.gguf:ro
+    command: >
+      -m /models/model.gguf
+      --embedding
+      --pooling cls
+      -c 8192
+      --host 0.0.0.0
+      --port 8000
     deploy:
       resources:
         reservations:
@@ -24,6 +22,3 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
-
-volumes:
-  hf_cache:
