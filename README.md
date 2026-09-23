@@ -2,7 +2,7 @@
 
 Универсальный сервер [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) для генерации векторных эмбеддингов текста и исходного кода через локальный [LM Studio](https://lmstudio.ai/).
 
-Работает с любыми моделями эмбеддингов, загруженными в LM Studio (`USER2-1C-code`, `nomic-embed-text`, `bge-m3`, `multilingual-e5` и др.), во всех современных средах разработки и ИИ-агентах.
+Работает с любыми моделями эмбеддингов, загруженными в LM Studio (включая специализированную модель для 1С:Предприятие [USER2-1C-code-GGUF](https://huggingface.co/Unimikes/USER2-1C-code-GGUF), а также `nomic-embed-text`, `bge-m3`, `multilingual-e5` и др.), во всех современных средах разработки и ИИ-агентах.
 
 ---
 
@@ -19,7 +19,7 @@
 
 1. **Python 3.10+**
 2. **LM Studio** с запущенным локальным сервером:
-   * Загрузите модель эмбеддингов (например, `USER2-1C-code` или `nomic-embed-text-v1.5`).
+   * Загрузите модель эмбеддингов (например, [USER2-1C-code-GGUF](https://huggingface.co/Unimikes/USER2-1C-code-GGUF) или `nomic-embed-text-v1.5`).
    * Перейдите во вкладку **Developer / Local Server** (`<->`) и запустите сервер на порту `1234`.
    * *Примечание для моделей ModernBERT:* Во вкладке **My Models** выберите модель и в секции **Domain Control** убедитесь, что выбран тип **Text Embedding**.
 
